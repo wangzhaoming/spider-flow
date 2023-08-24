@@ -17,7 +17,6 @@
 		<dependency>
 			<groupId>org.spiderflow</groupId>
 			<artifactId>spider-flow-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.hankcs</groupId>
