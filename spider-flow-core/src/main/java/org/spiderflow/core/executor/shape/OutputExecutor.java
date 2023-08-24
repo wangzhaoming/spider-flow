@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.spiderflow.context.SpiderContext;
 import org.spiderflow.core.serializer.FastJsonSerializer;
 import org.spiderflow.core.utils.DataSourceUtils;
+import org.spiderflow.core.utils.DataUtils;
 import org.spiderflow.core.utils.ExpressionUtils;
 import org.spiderflow.executor.ShapeExecutor;
 import org.spiderflow.io.SpiderResponse;
@@ -21,6 +22,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 /**
@@ -54,7 +58,7 @@ public class OutputExecutor implements ShapeExecutor, SpiderListener {
 	/**
 	 * 输出CSVPrinter节点变量
 	 */
-	private Map<String, CSVPrinter> cachePrinter = new HashMap<>();
+	private final Map<String, CSVPrinter> cachePrinter = new HashMap<>();
 
 	@Override
 	public void execute(SpiderNode node, SpiderContext context, Map<String,Object> variables) {
@@ -70,7 +74,7 @@ public class OutputExecutor implements ShapeExecutor, SpiderListener {
 		List<Map<String, String>> outputs = node.getListJsonValue(OUTPUT_NAME, OUTPUT_VALUE);
 		Map<String, Object> outputData = null;
 		if (databaseFlag || csvFlag) {
-			outputData = new HashMap<>(outputs.size());
+			outputData = new LinkedHashMap<>(outputs.size());
 		}
 		for (Map<String, String> item : outputs) {
 			Object value = null;
@@ -84,8 +88,9 @@ public class OutputExecutor implements ShapeExecutor, SpiderListener {
 				logger.error("输出{}出错，异常信息：{}", outputName,e);
 			}
 			output.addOutput(outputName, value);
-			if ((databaseFlag || csvFlag) && value != null) {
-				outputData.put(outputName, value.toString());
+			variables.put(outputName, value);
+			if (databaseFlag || csvFlag) {
+				outputData.put(outputName, value);
 			}
 		}
 		if(databaseFlag){
@@ -165,35 +170,26 @@ public class OutputExecutor implements ShapeExecutor, SpiderListener {
 		if (data == null || data.isEmpty()) {
 			return;
 		}
+		csvName = (String) ExpressionUtils.execute(csvName, null);
 		String key = context.getId() + "-" + node.getNodeId();
-		CSVPrinter printer = cachePrinter.get(key);
-		List<String> records = new ArrayList<>(data.size());
 		String[] headers = data.keySet().toArray(new String[data.size()]);
 		try {
-			if (printer == null) {
-				synchronized (cachePrinter) {
-					printer = cachePrinter.get(key);
-					if (printer == null) {
-						CSVFormat format = CSVFormat.DEFAULT.withHeader(headers);
-						FileOutputStream os = new FileOutputStream(csvName);
-						String csvEncoding = node.getStringJsonValue(CSV_ENCODING);
-						if ("UTF-8BOM".equals(csvEncoding)) {
-							csvEncoding = csvEncoding.substring(0, 5);
-							byte[] bom = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
-							os.write(bom);
-							os.flush();
-						}
-						OutputStreamWriter osw = new OutputStreamWriter(os, csvEncoding);
-						printer = new CSVPrinter(osw, format);
-						cachePrinter.put(key, printer);
+			synchronized (cachePrinter) { // fixme 性能不好
+				CSVPrinter printer = cachePrinter.get(key);
+				if (printer == null) {
+					CSVFormat format = CSVFormat.DEFAULT.withHeader(headers);
+					String csvEncoding = node.getStringJsonValue(CSV_ENCODING);
+
+					File file = new File(csvName);
+					if(file.exists()) {
+						printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(file, true), csvEncoding), format.withSkipHeaderRecord());
 					}
+					else {
+						printer = new CSVPrinter(new OutputStreamWriter(new FileOutputStream(file), csvEncoding), format);
+					}
+					cachePrinter.put(key, printer);
 				}
-			}
-			for (int i = 0; i < headers.length; i++) {
-				records.add(data.get(headers[i]).toString());
-			}
-			synchronized (cachePrinter) {
-				printer.printRecord(records);
+				printer.printRecord(DataUtils.replaceNewlineCharInString(data.values()));
 			}
 		} catch (IOException e) {
 			logger.error("文件输出错误,异常信息:{}", e.getMessage(), e);
@@ -213,21 +209,26 @@ public class OutputExecutor implements ShapeExecutor, SpiderListener {
 
 	@Override
 	public void afterEnd(SpiderContext context) {
-		this.releasePrinters();
+		this.releasePrinters(context);
 	}
 
-	private void releasePrinters() {
-		for (Iterator<Map.Entry<String, CSVPrinter>> iterator = this.cachePrinter.entrySet().iterator(); iterator.hasNext(); ) {
-			Map.Entry<String, CSVPrinter> entry = iterator.next();
-			CSVPrinter printer = entry.getValue();
-			if (printer != null) {
-				try {
-					printer.flush();
-					printer.close();
-					this.cachePrinter.remove(entry.getKey());
-				} catch (IOException e) {
-					logger.error("文件输出错误,异常信息:{}", e.getMessage(), e);
-					ExceptionUtils.wrapAndThrow(e);
+	private void releasePrinters(SpiderContext context) {
+		synchronized (cachePrinter) {
+			for (Iterator<Map.Entry<String, CSVPrinter>> iterator = this.cachePrinter.entrySet().iterator(); iterator.hasNext(); ) {
+				Map.Entry<String, CSVPrinter> entry = iterator.next();
+				// 仅删除当前流程的printer
+				if (entry.getKey().startsWith(context.getId())) {
+					CSVPrinter printer = entry.getValue();
+					if (printer != null) {
+						try {
+							printer.flush();
+							printer.close();
+							this.cachePrinter.remove(entry.getKey());
+						} catch (IOException e) {
+							logger.error("文件输出错误,异常信息:{}", e.getMessage(), e);
+							ExceptionUtils.wrapAndThrow(e);
+						}
+					}
 				}
 			}
 		}

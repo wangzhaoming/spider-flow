@@ -64,8 +64,12 @@ public class ListFunctionExecutor implements FunctionExecutor{
 			return null;
 		}
 		List<String> result = new ArrayList<>(list.size());
+		Pattern compile = Pattern.compile(pattern);
 		for (String item : list) {
-			if (Pattern.matches(pattern, item)) {
+			if (item == null) {
+				continue;
+			}
+			if (compile.matcher(item).find()) {
 				result.add(item);
 			}
 		}

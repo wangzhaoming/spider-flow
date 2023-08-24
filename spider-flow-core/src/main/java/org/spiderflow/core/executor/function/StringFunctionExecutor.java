@@ -1,15 +1,15 @@
 package org.spiderflow.core.executor.function;
 
+import org.spiderflow.annotation.Comment;
+import org.spiderflow.annotation.Example;
+import org.spiderflow.executor.FunctionExecutor;
+import org.springframework.stereotype.Component;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
-import org.spiderflow.annotation.Comment;
-import org.spiderflow.annotation.Example;
-import org.spiderflow.executor.FunctionExecutor;
-import org.springframework.stereotype.Component;
 
 /**
  * String 工具类 防止NPE 
@@ -172,5 +172,4 @@ public class StringFunctionExecutor implements FunctionExecutor{
 		}
 		return ids;
 	}
-
 }

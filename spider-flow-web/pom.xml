@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.spiderflow</groupId>
 		<artifactId>spider-flow</artifactId>
-		<version>0.5.0</version>
+		<version>0.5.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>spider-flow-web</artifactId>
 	<name>spider-flow-web</name>
@@ -16,6 +16,20 @@
 		<dependency>
 			<groupId>org.spiderflow</groupId>
 			<artifactId>spider-flow-core</artifactId>
+		</dependency>
+		<!-- 引入selenium插件 -->
+		<dependency>
+			<groupId>org.spiderflow</groupId>
+			<artifactId>spider-flow-selenium</artifactId>
+		</dependency>
+		<!-- 引入proxypool插件 -->
+		<dependency>
+			<groupId>org.spiderflow</groupId>
+			<artifactId>spider-flow-proxypool</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.spiderflow</groupId>
+			<artifactId>spider-flow-addon</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

@@ -145,13 +145,13 @@ public class SpiderFlowService extends ServiceImpl<SpiderFlowMapper, SpiderFlow>
 	}
 
 	public void start(String id){
+		sfMapper.resetSpiderStatus(id, "1");
 		spiderJobManager.remove(id);
 		SpiderFlow spiderFlow = getById(id);
 		Date nextExecuteTime = spiderJobManager.addJob(spiderFlow);
 		if (nextExecuteTime != null) {
 			spiderFlow.setNextExecuteTime(nextExecuteTime);
 			sfMapper.updateById(spiderFlow);
-			sfMapper.resetSpiderStatus(id, "1");
 		}
 	}
 
