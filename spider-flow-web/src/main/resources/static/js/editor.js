@@ -253,18 +253,20 @@ $(function(){
 				$dom.scrollLeft($dom.scrollLeft()+60);
 			}
 			return false;
-		}).on("dblclick",".layui-input-block[codemirror]",function(){
-			if($(this).parent().hasClass("layui-layer-content")){
-				return;
-			}
-			layui.layer.open({
-				type : 1,
-				title : '请输入'+$(this).prev().html()+'表达式',
-				content : $(this),
-				skin : 'codemirror',
-				area : '800px'
-			})
-		}).on("blur","input,textarea",function(){
+		})
+//		.on("dblclick",".layui-input-block[codemirror]",function(){
+//			if($(this).parent().hasClass("layui-layer-content")){
+//				return;
+//			}
+//			layui.layer.open({
+//				type : 1,
+//				title : '请输入'+$(this).prev().html()+'表达式',
+//				content : $(this),
+//				skin : 'codemirror',
+//				area : '800px'
+//			})
+//		})
+		.on("blur","input,textarea",function(){
 			serializeForm();
 		}).on("click",".history-version li",function(){
 			var timestamp = $(this).data("timestamp");

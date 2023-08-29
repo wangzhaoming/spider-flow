@@ -76,15 +76,15 @@ SpiderEditor.prototype.bindKeyAction = function(){
 	this.keyHandler.bindControlKey(89,function(){	//Ctrl+Y
 		_this.execute('redo');
 	})
-	this.keyHandler.bindControlKey(88,function(){ // Ctrl+X
-		_this.execute('cut');
-	});
-	this.keyHandler.bindControlKey(67, function(){	// Ctrl+C
-		_this.executeCopy();
-	});
-	this.keyHandler.bindControlKey(65,function(){	// Ctrl+A
-		editor.execute('selectAll');
-	});
+//	this.keyHandler.bindControlKey(88,function(){ // Ctrl+X
+//		_this.execute('cut');
+//	});
+//	this.keyHandler.bindControlKey(67, function(){	// Ctrl+C
+//		_this.executeCopy();
+//	});
+//	this.keyHandler.bindControlKey(65,function(){	// Ctrl+A
+//		editor.execute('selectAll');
+//	});
 }
 SpiderEditor.prototype.configureStylesheet = function(){
 	var style = new Object();
