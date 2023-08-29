@@ -1,6 +1,7 @@
 package org.spiderflow.core.executor.function.extension;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.nodes.Element;
@@ -19,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public class StringFunctionExtension implements FunctionExtension{
+public class StringFunctionExtension implements FunctionExtension {
 
 	@Override
 	public Class<?> support() {
@@ -139,5 +140,17 @@ public class StringFunctionExtension implements FunctionExtension{
 	@Example("${strVar.unescape()}")
 	public static String unescape(String source){
 		return StringEscapeUtils.unescapeJava(source);
+	}
+
+	@Comment("检查字符串中是否包含任意给定的子串")
+	@Example("${strVar.containsAny(a, b, c)}")
+	public static boolean containsAny(String source, List<String> searchCharSequences) {
+		return StringUtils.containsAny(source, searchCharSequences.toArray(new String[0]));
+	}
+
+	@Comment("检查字符串中是否包含任意给定的子串(忽略大小写)")
+	@Example("${strVar.containsAnyIgnoreCase(a, b, c)}")
+	public static boolean containsAnyIgnoreCase(String cs, List<String> searchCharSequences) {
+		return StringUtils.containsAnyIgnoreCase(cs, searchCharSequences.toArray(new String[0]));
 	}
 }
