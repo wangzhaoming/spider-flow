@@ -17,5 +17,15 @@
 			<groupId>org.spiderflow</groupId>
 			<artifactId>spider-flow-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>cn.edu.hfut.dmic.webcollector</groupId>
+			<artifactId>WebCollector</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-reload4j</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 </project>

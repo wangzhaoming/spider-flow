@@ -39,10 +39,10 @@ public class SecurityConfiguration {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
-		http.antMatcher("/*")
-				.authorizeHttpRequests((authorize) -> authorize
-						.anyRequest().authenticated()
-				)
+		http.authorizeRequests()
+				.anyRequest().authenticated()
+				.and().csrf().disable().headers().frameOptions().sameOrigin()
+				.and()
 				.httpBasic(withDefaults())
 				.formLogin(withDefaults());
 		// @formatter:on

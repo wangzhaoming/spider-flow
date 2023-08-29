@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import cn.edu.hfut.dmic.contentextractor.ContentExtractor;
+import cn.edu.hfut.dmic.contentextractor.News;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -123,5 +125,15 @@ public class ResponseFunctionExtension implements FunctionExtension {
                 .stream()
                 .filter(link -> StringUtils.isNotBlank(link))
                 .collect(Collectors.toList());
+    }
+
+    @Comment("获取页面正文信息(Content Extraction via Path Ratios (CEPR))")
+    @Example("${resp.news()}")
+    public static News news(SpiderResponse response) {
+        try {
+            return ContentExtractor.getNewsByHtml(response.getHtml(), response.getUrl());
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

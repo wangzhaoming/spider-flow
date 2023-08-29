@@ -214,6 +214,11 @@
 				<version>4.11.0</version>
 			</dependency>
 			<dependency>
+				<groupId>cn.edu.hfut.dmic.webcollector</groupId>
+				<artifactId>WebCollector</artifactId>
+				<version>2.73-alpha</version>
+			</dependency>
+			<dependency>
 				<groupId>org.spiderflow</groupId>
 				<artifactId>spider-flow-api</artifactId>
 				<version>${spider-flow.version}</version>
